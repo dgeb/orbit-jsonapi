@@ -1,8 +1,7 @@
 {
   "name": "orbit-local-storage",
-  "private": true,
   "version": "0.8.0-beta.1",
-  "description": "Orbit.js Source for accessing JSON:API compliant servers.",
+  "description": "Orbit.js source for accessing JSON:API compliant servers.",
   "homepage": "https://github.com/orbitjs/orbit-local-storage",
   "contributors": [
     "Dan Gebhardt (http://www.cerebris.com)"
@@ -26,6 +25,7 @@
   "engines": {
     "node": ">= 4.0.0"
   },
+  "main": "src/index.js",
   "scripts": {
     "build": "rm -rf dist && BROCCOLI_ENV=test broccoli build dist",
     "test": "testem ci",
