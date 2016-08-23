@@ -49,6 +49,6 @@
     "yuidocjs": "^0.8.1"
   },
   "dependencies": {
-    "orbit-core": "0.8.0-beta.1"
+    "orbit-core": "git://github.com/orbitjs/orbit-core#master"
   }
 }
