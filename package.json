@@ -1,0 +1,54 @@
+{
+  "name": "orbit-local-storage",
+  "private": true,
+  "version": "0.8.0-beta.1",
+  "description": "Orbit.js Source for accessing JSON:API compliant servers.",
+  "homepage": "https://github.com/orbitjs/orbit-local-storage",
+  "contributors": [
+    "Dan Gebhardt (http://www.cerebris.com)"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/orbitjs/orbit-local-storage.git"
+  },
+  "bugs": {
+    "url": "https://github.com/orbitjs/orbit-local-storage/issues"
+  },
+  "keywords": [
+    "orbit.js",
+    "data",
+    "REST",
+    "fetch",
+    "JSON:API",
+    "JSONAPI"
+  ],
+  "license": "MIT",
+  "scripts": {
+    "build": "rm -rf dist && BROCCOLI_ENV=test broccoli build dist",
+    "test": "testem ci",
+    "start": "BROCCOLI_ENV=test broccoli serve",
+    "docs": "yuidoc ./src"
+  },
+  "devDependencies": {
+    "babel-eslint": "^6.0.4",
+    "broccoli": "^0.16.0",
+    "broccoli-babel-transpiler": "^5.5.0",
+    "broccoli-cli": "0.0.1",
+    "broccoli-es6modules": "^0.4.0",
+    "broccoli-funnel": "^1.0.1",
+    "broccoli-lint-eslint": "^2.3.0",
+    "broccoli-merge-trees": "^1.1.1",
+    "broccoli-sourcemap-concat": "^0.4.3",
+    "broccoli-string-replace": "^0.1.1",
+    "immutable": "^3.7.6",
+    "js-string-escape": "^1.0.1",
+    "loader.js": "4.0.1",
+    "qunitjs": "^1.23.1",
+    "rsvp": "^3.2.1",
+    "testem": "1.6.0",
+    "yuidocjs": "^0.8.1"
+  },
+  "dependencies": {
+    "orbit-core": "0.8.0-beta.1"
+  }
+}
