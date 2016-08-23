@@ -7,6 +7,7 @@ var CompileES6Modules = require('broccoli-es6modules');
 var TranspileES6 = require('broccoli-babel-transpiler');
 var eslint = require('broccoli-lint-eslint');
 var testGenerator = require('./test-generator');
+var path = require('path');
 
 module.exports = function build(pkg, namespace) {
   namespace = namespace || pkg;
@@ -65,21 +66,20 @@ module.exports = function build(pkg, namespace) {
 
   // Generate Dependencies and Tests /////////////////////////////////////////////
 
-  var loader = new Funnel('node_modules', {
-    srcDir: 'loader.js/lib/loader/',
+  var loader = new Funnel(path.join(require.resolve('loader.js'), '..'), {
     files: ['loader.js'],
     destDir: '/assets/'
   });
 
-  var testSrc = new Funnel('test', {
-    srcDir: '/tests',
-    include: [/.js$/],
+  var testSrc = new Funnel('test/tests', {
+    include: ['**/*.js'],
     destDir: '/tests'
   });
 
   var eslintSrc = eslint(amdSrc, { testGenerator: testGenerator });
   var eslintTests = eslint(testSrc, { testGenerator: testGenerator });
   var amdSrcWithTests = mergeTrees([amdSrc, testSrc, eslintSrc, eslintTests], { overwrite: true });
+
   amdSrcWithTests = new CompileES6Modules(amdSrcWithTests);
   amdSrcWithTests = new TranspileES6(amdSrcWithTests);
   amdSrcWithTests = concat(amdSrcWithTests, {
@@ -89,14 +89,14 @@ module.exports = function build(pkg, namespace) {
 
   var vendor = concat('', {
     inputFiles: [
-      'node_modules/orbit-core/dist/amd/orbit-core.js',
-      'node_modules/immutable/dist/immutable.js',
-      'node_modules/rsvp/dist/rsvp.js'],
+      path.join(require.resolve('orbit-core'), '..', '..', 'dist', 'amd', 'orbit-core.js'),
+      path.join(require.resolve('orbit-core'), '..', '..', 'node_modules', 'immutable', 'dist', 'immutable.js'),
+      path.join(require.resolve('rsvp'), '..', 'rsvp.js')
+    ],
     outputFile: '/assets/vendor.js'
   });
 
-  var qunit = new Funnel('node_modules', {
-    srcDir: '/qunitjs/qunit',
+  var qunit = new Funnel(path.join(require.resolve('qunitjs'), '..'), {
     files: ['qunit.js', 'qunit.css'],
     destDir: '/assets'
   });
