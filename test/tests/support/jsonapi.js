@@ -1,7 +1,7 @@
 import { Promise } from 'rsvp';
 
 export function jsonapiResponse(_options, _body) {
-  const body = JSON.stringify(_body || {});
+  const body = _body ? JSON.stringify(_body) : null;
   let options;
 
   if (typeof _options === 'number') {
@@ -12,10 +12,17 @@ export function jsonapiResponse(_options, _body) {
 
   options.statusText = options.statusText || statusText(options.status);
   options.headers = options.headers || {};
-  options.headers['Content-Type'] = 'application/vnd.api+json';
-  const response = new self.Response(body, options);
 
-  // console.log(body, options);
+  let response;
+
+  if (body) {
+    options.headers['Content-Type'] = 'application/vnd.api+json';
+    response = new self.Response(body, options);
+  } else {
+    response = new self.Response(options);
+  }
+
+  // console.log('jsonapiResponse', body, options, response.headers.get('Content-Type'));
 
   return Promise.resolve(response);
 }
