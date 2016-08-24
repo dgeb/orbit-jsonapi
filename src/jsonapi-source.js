@@ -138,10 +138,18 @@ export default class JSONAPISource extends Source {
 
   handleFetchResponse(response) {
     if (response.status >= 200 && response.status < 300) {
-      return response.json();
+      if (this.responseHasContent(response)) {
+        return response.json();
+      } else {
+        return;
+      }
     } else {
-      return response.json()
-        .then(data => this.handleFetchResponseError(response, data));
+      if (this.responseHasContent(response)) {
+        return response.json()
+          .then(data => this.handleFetchResponseError(response, data));
+      } else {
+        return this.handleFetchResponseError(response);
+      }
     }
   }
 
@@ -159,6 +167,10 @@ export default class JSONAPISource extends Source {
 
   handleFetchError(e) {
     throw new NetworkError(e);
+  }
+
+  responseHasContent(response) {
+    return response.headers.get('Content-Type') === 'application/vnd.api+json';
   }
 
   resourceNamespace(/* type */) {
