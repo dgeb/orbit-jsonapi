@@ -1,4 +1,3 @@
-/* globals fetch */
 /* eslint-disable valid-jsdoc */
 import Orbit from 'orbit';
 import { assert } from 'orbit/lib/assert';
@@ -11,8 +10,8 @@ import { encodeQueryParams } from './lib/query-params';
 import { getQueryRequests, QueryRequestProcessors } from './lib/queries';
 import { getTransformRequests, TransformRequestProcessors } from './lib/transform-requests';
 
-if (typeof fetch !== 'undefined' && Orbit.fetch === undefined) {
-  Orbit.fetch = fetch;
+if (typeof self.fetch !== 'undefined' && Orbit.fetch === undefined) {
+  Orbit.fetch = self.fetch;
 }
 
 /**
