@@ -1,6 +1,6 @@
 {
   "name": "orbit-jsonapi",
-  "version": "0.8.0-beta.2",
+  "version": "0.8.0-beta.3",
   "description": "Orbit.js source for accessing JSON:API compliant servers.",
   "homepage": "https://github.com/orbitjs/orbit-local-storage",
   "contributors": [
