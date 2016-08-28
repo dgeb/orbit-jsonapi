@@ -130,6 +130,17 @@ test('#defaultFetchHeaders - include JSONAPI Accept header by default', function
   assert.deepEqual(source.defaultFetchHeaders, { Accept: 'application/vnd.api+json' }, 'Default headers should include JSONAPI Accept header');
 });
 
+test('#responseHasContent - returns true if JSONAPI media type appears anywhere in Content-Type header', function(assert) {
+  let response = new self.Response('{ data: null }', { headers: { 'Content-Type': 'application/vnd.api+json' } });
+  assert.equal(source.responseHasContent(response), true, 'Accepts content that is _only_ the JSONAPI media type.');
+
+  response = new self.Response('{ data: null }', { headers: { 'Content-Type': 'application/json,application/vnd.api+json; charset=utf-8' } });
+  assert.equal(source.responseHasContent(response), true, 'Position of JSONAPI media type is not important.');
+
+  response = new self.Response('{ data: null }', { headers: { 'Content-Type': 'application/json' } });
+  assert.equal(source.responseHasContent(response), false, 'Plain json can not be parsed by default.');
+});
+
 test('#push - can add records', function(assert) {
   assert.expect(6);
 
