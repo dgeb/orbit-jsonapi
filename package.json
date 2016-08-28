@@ -2,16 +2,16 @@
   "name": "orbit-jsonapi",
   "version": "0.8.0-beta.3",
   "description": "Orbit.js source for accessing JSON:API compliant servers.",
-  "homepage": "https://github.com/orbitjs/orbit-local-storage",
+  "homepage": "https://github.com/orbitjs/orbit-jsonapi",
   "contributors": [
     "Dan Gebhardt (http://www.cerebris.com)"
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/orbitjs/orbit-local-storage.git"
+    "url": "git://github.com/orbitjs/orbit-jsonapi.git"
   },
   "bugs": {
-    "url": "https://github.com/orbitjs/orbit-local-storage/issues"
+    "url": "https://github.com/orbitjs/orbit-jsonapi/issues"
   },
   "license": "MIT",
   "keywords": [
