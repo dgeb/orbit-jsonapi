@@ -9,7 +9,7 @@ let keyMap;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-module('OC - JSONAPISerializer', {
+module('JSONAPISerializer', {
   beforeEach() {
     keyMap = new KeyMap();
   },

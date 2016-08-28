@@ -3,7 +3,6 @@ import Source from 'orbit/source';
 import { uuid } from 'orbit/lib/uuid';
 import Schema from 'orbit/schema';
 import KeyMap from 'orbit/key-map';
-import JSONAPISource from 'orbit-jsonapi/jsonapi-source';
 import Transform from 'orbit/transform';
 import qb from 'orbit/query/builder';
 import { TransformNotAllowed } from 'orbit/lib/exceptions';
@@ -18,13 +17,15 @@ import {
   replaceHasMany,
   replaceHasOne
 } from 'orbit/transform/operators';
+import JSONAPISource from 'orbit-jsonapi/jsonapi-source';
+import { InvalidServerResponse } from 'orbit-jsonapi/lib/exceptions';
 import { jsonapiResponse } from 'tests/test-helper';
 
 let fetchStub, keyMap, source;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-module('OC - JSONAPISource - with a secondary key', {
+module('JSONAPISource - with a secondary key', {
   setup() {
     fetchStub = sinon.stub(Orbit, 'fetch');
 
@@ -130,6 +131,17 @@ test('#defaultFetchHeaders - include JSONAPI Accept header by default', function
   assert.deepEqual(source.defaultFetchHeaders, { Accept: 'application/vnd.api+json' }, 'Default headers should include JSONAPI Accept header');
 });
 
+test('#responseHasContent - returns true if JSONAPI media type appears anywhere in Content-Type header', function(assert) {
+  let response = new self.Response('{ data: null }', { headers: { 'Content-Type': 'application/vnd.api+json' } });
+  assert.equal(source.responseHasContent(response), true, 'Accepts content that is _only_ the JSONAPI media type.');
+
+  response = new self.Response('{ data: null }', { headers: { 'Content-Type': 'application/json,application/vnd.api+json; charset=utf-8' } });
+  assert.equal(source.responseHasContent(response), true, 'Position of JSONAPI media type is not important.');
+
+  response = new self.Response('{ data: null }', { headers: { 'Content-Type': 'application/json' } });
+  assert.equal(source.responseHasContent(response), false, 'Plain json can not be parsed by default.');
+});
+
 test('#push - can add records', function(assert) {
   assert.expect(6);
 
@@ -214,6 +226,21 @@ test('#push - can add records', function(assert) {
         },
         'fetch called with expected data'
       );
+    });
+});
+
+test('#push - fails when adding records and no body is returned with a 201 response.', function(assert) {
+  assert.expect(1);
+
+  let planet = source.serializer.deserializeRecord({ type: 'planet', attributes: { name: 'Jupiter', classification: 'gas giant' } });
+
+  fetchStub
+    .withArgs('/planets')
+    .returns(jsonapiResponse(201));
+
+  return source.push(Transform.from(addRecord(planet)))
+    .catch(e => {
+      assert.ok(e instanceof InvalidServerResponse, 'InvalidServerResponse error thrown.');
     });
 });
 
@@ -376,7 +403,7 @@ test('#push - can add a hasMany relationship with POST', function(assert) {
 
   fetchStub
     .withArgs('/planets/12345/relationships/moons')
-    .returns(jsonapiResponse(201));
+    .returns(jsonapiResponse(204));
 
   return source.push(Transform.from(addToHasMany(planet, 'moons', moon)))
     .then(() => {
@@ -664,7 +691,7 @@ test('#pull - relatedRecords', function(assert) {
   });
 });
 
-module('OC - JSONAPISource - with no secondary keys', {
+module('JSONAPISource - with no secondary keys', {
   setup() {
     fetchStub = sinon.stub(Orbit, 'fetch');
 

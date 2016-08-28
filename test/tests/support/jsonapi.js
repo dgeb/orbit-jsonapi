@@ -12,15 +12,11 @@ export function jsonapiResponse(_options, _body) {
 
   options.statusText = options.statusText || statusText(options.status);
   options.headers = options.headers || {};
-
-  let response;
-
   if (body) {
     options.headers['Content-Type'] = 'application/vnd.api+json';
-    response = new self.Response(body, options);
-  } else {
-    response = new self.Response(options);
   }
+
+  let response = new self.Response(body, options);
 
   // console.log('jsonapiResponse', body, options, response.headers.get('Content-Type'));
 
