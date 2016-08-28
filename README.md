@@ -1,6 +1,6 @@
 # OrbitJSONAPI [![Build Status](https://secure.travis-ci.org/orbitjs/orbit-jsonapi.png?branch=master)](http://travis-ci.org/orbitjs/orbit-jsonapi)
 
-OrbitJSONAPI is a data source for
+The OrbitJSONAPI library includes a data source and serializer for
 [Orbit.js](https://github.com/orbitjs/orbit-core)
 that accesses a remote server that is compliant with the
 [JSON:API](http://jsonapi.org/) spec.
