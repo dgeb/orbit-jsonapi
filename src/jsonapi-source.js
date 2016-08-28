@@ -9,6 +9,7 @@ import JSONAPISerializer from './jsonapi-serializer';
 import { encodeQueryParams } from './lib/query-params';
 import { getQueryRequests, QueryRequestProcessors } from './lib/queries';
 import { getTransformRequests, TransformRequestProcessors } from './lib/transform-requests';
+import { InvalidServerResponse } from './lib/exceptions';
 
 if (typeof self.fetch !== 'undefined' && Orbit.fetch === undefined) {
   Orbit.fetch = self.fetch;
@@ -137,7 +138,13 @@ export default class JSONAPISource extends Source {
   }
 
   handleFetchResponse(response) {
-    if (response.status >= 200 && response.status < 300) {
+    if (response.status === 201) {
+      if (this.responseHasContent(response)) {
+        return response.json();
+      } else {
+        throw new InvalidServerResponse(`Server responses with a ${response.status} status should return content with a Content-Type that includes 'application/vnd.api+json'.`);
+      }
+    } else if (response.status >= 200 && response.status < 300) {
       if (this.responseHasContent(response)) {
         return response.json();
       } else {
