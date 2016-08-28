@@ -3,7 +3,6 @@ import Source from 'orbit/source';
 import { uuid } from 'orbit/lib/uuid';
 import Schema from 'orbit/schema';
 import KeyMap from 'orbit/key-map';
-import JSONAPISource from 'orbit-jsonapi/jsonapi-source';
 import Transform from 'orbit/transform';
 import qb from 'orbit/query/builder';
 import { TransformNotAllowed } from 'orbit/lib/exceptions';
@@ -18,13 +17,14 @@ import {
   replaceHasMany,
   replaceHasOne
 } from 'orbit/transform/operators';
+import JSONAPISource from 'orbit-jsonapi/jsonapi-source';
 import { jsonapiResponse } from 'tests/test-helper';
 
 let fetchStub, keyMap, source;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-module('OC - JSONAPISource - with a secondary key', {
+module('JSONAPISource - with a secondary key', {
   setup() {
     fetchStub = sinon.stub(Orbit, 'fetch');
 
@@ -675,7 +675,7 @@ test('#pull - relatedRecords', function(assert) {
   });
 });
 
-module('OC - JSONAPISource - with no secondary keys', {
+module('JSONAPISource - with no secondary keys', {
   setup() {
     fetchStub = sinon.stub(Orbit, 'fetch');
 
