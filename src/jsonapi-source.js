@@ -42,9 +42,10 @@ export default class JSONAPISource extends Source {
     assert('JSONAPISource requires Orbit.Promise be defined', Orbit.Promise);
     assert('JSONAPISource requires Orbit.fetch be defined', Orbit.fetch);
 
+    options.name = options.name || 'jsonapi';
+
     super(options);
 
-    this.name                = options.name || 'jsonapi';
     this.namespace           = options.namespace;
     this.host                = options.host;
     this.defaultFetchHeaders = options.defaultFetchHeaders || { Accept: 'application/vnd.api+json' };
