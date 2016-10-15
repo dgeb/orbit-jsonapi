@@ -22,11 +22,20 @@ function deserialize(source, data) {
 
 export const QueryRequestProcessors = {
   records(source, request) {
-    const { type, filter } = request;
+    const { type, filter, sort } = request;
     const settings = {};
+    const params = {};
 
     if (filter) {
-      settings.params = { filter };
+      params.filter = filter;
+    }
+
+    if (sort) {
+      params.sort = sort;
+    }
+
+    if (Object.keys(params).length > 0) {
+      settings.params = params;
     }
 
     return source.fetch(source.resourceURL(type), settings)
@@ -99,6 +108,13 @@ const ExpressionToRequestMap = {
     buildQueryRequest(select, request);
   },
 
+  sort(expression, request) {
+    const [select, sortExpressions] = expression.args;
+    request.sort = buildSort(sortExpressions);
+
+    buildQueryRequest(select, request);
+  },
+
   relatedRecords(expression, request) {
     request.op = 'relatedRecords';
     request.record = expression.args[0];
@@ -126,4 +142,16 @@ function parseFilter(expression, filters) {
       filters[attribute] = filterValue;
     }
   }
+}
+
+function buildSort(sortExpressions) {
+  return sortExpressions.map(parseSortExpression).join(',');
+}
+
+function parseSortExpression(sortExpression) {
+  if (sortExpression.field.op === 'attribute') {
+    const [attribute] = sortExpression.field.args;
+    return (sortExpression.order === 'descending' ? '-' : '') + attribute;
+  }
+  throw new QueryExpressionParseError('Query expression could not be parsed.', sortExpression.field);
 }

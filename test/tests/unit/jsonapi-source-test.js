@@ -658,6 +658,78 @@ test('#pull - records with filter', function(assert) {
     });
 });
 
+test('#pull - records with sort by an attribute in ascending order', function(assert) {
+  assert.expect(5);
+
+  const data = [
+    { type: 'planets', attributes: { name: 'Earth', classification: 'terrestrial' } },
+    { type: 'planets', attributes: { name: 'Jupiter', classification: 'gas giant' } },
+    { type: 'planets', attributes: { name: 'Saturn', classification: 'gas giant' } }
+  ];
+
+  fetchStub
+    .withArgs('/planets?sort=name')
+    .returns(jsonapiResponse(200, { data }));
+
+  return source.pull(qb.records('planet').sort('name'))
+    .then(transforms => {
+      assert.equal(transforms.length, 1, 'one transform returned');
+      assert.deepEqual(transforms[0].operations.map(o => o.op), ['replaceRecord', 'replaceRecord', 'replaceRecord']);
+      assert.deepEqual(transforms[0].operations.map(o => o.record.attributes.name), ['Earth', 'Jupiter', 'Saturn']);
+
+      assert.equal(fetchStub.callCount, 1, 'fetch called once');
+      assert.equal(fetchStub.getCall(0).args[1].method, undefined, 'fetch called with no method (equivalent to GET)');
+    });
+});
+
+test('#pull - records with sort by an attribute in descending order', function(assert) {
+  assert.expect(5);
+
+  const data = [
+    { type: 'planets', attributes: { name: 'Saturn', classification: 'gas giant' } },
+    { type: 'planets', attributes: { name: 'Jupiter', classification: 'gas giant' } },
+    { type: 'planets', attributes: { name: 'Earth', classification: 'terrestrial' } }
+  ];
+
+  fetchStub
+    .withArgs('/planets?sort=-name')
+    .returns(jsonapiResponse(200, { data }));
+
+  return source.pull(qb.records('planet').sort('-name'))
+    .then(transforms => {
+      assert.equal(transforms.length, 1, 'one transform returned');
+      assert.deepEqual(transforms[0].operations.map(o => o.op), ['replaceRecord', 'replaceRecord', 'replaceRecord']);
+      assert.deepEqual(transforms[0].operations.map(o => o.record.attributes.name), ['Saturn', 'Jupiter', 'Earth']);
+
+      assert.equal(fetchStub.callCount, 1, 'fetch called once');
+      assert.equal(fetchStub.getCall(0).args[1].method, undefined, 'fetch called with no method (equivalent to GET)');
+    });
+});
+
+test('#pull - records with sort by multiple fields', function(assert) {
+  assert.expect(5);
+
+  const data = [
+    { type: 'planets', attributes: { name: 'Jupiter', classification: 'gas giant' } },
+    { type: 'planets', attributes: { name: 'Saturn', classification: 'gas giant' } },
+    { type: 'planets', attributes: { name: 'Earth', classification: 'terrestrial' } }
+  ];
+
+  fetchStub
+    .withArgs(`/planets?sort=${encodeURIComponent('classification,name')}`)
+    .returns(jsonapiResponse(200, { data }));
+
+  return source.pull(qb.records('planet').sort('classification', 'name'))
+    .then(transforms => {
+      assert.equal(transforms.length, 1, 'one transform returned');
+      assert.deepEqual(transforms[0].operations.map(o => o.op), ['replaceRecord', 'replaceRecord', 'replaceRecord']);
+      assert.deepEqual(transforms[0].operations.map(o => o.record.attributes.name), ['Jupiter', 'Saturn', 'Earth']);
+
+      assert.equal(fetchStub.callCount, 1, 'fetch called once');
+      assert.equal(fetchStub.getCall(0).args[1].method, undefined, 'fetch called with no method (equivalent to GET)');
+    });
+});
+
 test('#pull - relatedRecords', function(assert) {
   assert.expect(5);
 
