@@ -18,7 +18,6 @@ import {
   replaceHasOne
 } from 'orbit/transform/operators';
 import JSONAPISource from 'orbit-jsonapi/jsonapi-source';
-import { InvalidServerResponse } from 'orbit-jsonapi/lib/exceptions';
 import { jsonapiResponse } from 'tests/test-helper';
 
 let fetchStub, keyMap, source;
@@ -226,21 +225,6 @@ test('#push - can add records', function(assert) {
         },
         'fetch called with expected data'
       );
-    });
-});
-
-test('#push - fails when adding records and no body is returned with a 201 response.', function(assert) {
-  assert.expect(1);
-
-  let planet = source.serializer.deserializeRecord({ type: 'planet', attributes: { name: 'Jupiter', classification: 'gas giant' } });
-
-  fetchStub
-    .withArgs('/planets')
-    .returns(jsonapiResponse(201));
-
-  return source.push(Transform.from(addRecord(planet)))
-    .catch(e => {
-      assert.ok(e instanceof InvalidServerResponse, 'InvalidServerResponse error thrown.');
     });
 });
 

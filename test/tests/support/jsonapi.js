@@ -1,22 +1,23 @@
 import { Promise } from 'rsvp';
 
-export function jsonapiResponse(_options, _body) {
-  const body = _body ? JSON.stringify(_body) : null;
+export function jsonapiResponse(_options, body) {
   let options;
+  let response;
 
   if (typeof _options === 'number') {
     options = { status: _options };
   } else {
     options = _options || {};
   }
-
   options.statusText = options.statusText || statusText(options.status);
   options.headers = options.headers || {};
+
   if (body) {
     options.headers['Content-Type'] = 'application/vnd.api+json';
+    response = new self.Response(JSON.stringify(body), options);
+  } else {
+    response = new self.Response(options);
   }
-
-  let response = new self.Response(body, options);
 
   // console.log('jsonapiResponse', body, options, response.headers.get('Content-Type'));
 
