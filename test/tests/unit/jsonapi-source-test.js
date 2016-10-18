@@ -730,6 +730,31 @@ test('#pull - records with sort by multiple fields', function(assert) {
     });
 });
 
+test('#pull - records with pagination', function(assert) {
+  assert.expect(5);
+
+  const data = [
+    { type: 'planets', attributes: { name: 'Jupiter', classification: 'gas giant' } },
+    { type: 'planets', attributes: { name: 'Earth', classification: 'terrestrial' } },
+    { type: 'planets', attributes: { name: 'Saturn', classification: 'gas giant' } }
+  ];
+
+  fetchStub
+    .withArgs(`/planets?${encodeURIComponent('page[offset]')}=1&${encodeURIComponent('page[limit]')}=10`)
+    .returns(jsonapiResponse(200, { data }));
+
+  return source.pull(qb.records('planet')
+                       .page({ offset: 1, limit: 10 }))
+    .then(transforms => {
+      assert.equal(transforms.length, 1, 'one transform returned');
+      assert.deepEqual(transforms[0].operations.map(o => o.op), ['replaceRecord', 'replaceRecord', 'replaceRecord']);
+      assert.deepEqual(transforms[0].operations.map(o => o.record.attributes.name), ['Jupiter', 'Earth', 'Saturn']);
+
+      assert.equal(fetchStub.callCount, 1, 'fetch called once');
+      assert.equal(fetchStub.getCall(0).args[1].method, undefined, 'fetch called with no method (equivalent to GET)');
+    });
+});
+
 test('#pull - relatedRecords', function(assert) {
   assert.expect(5);
 

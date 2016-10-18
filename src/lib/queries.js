@@ -22,7 +22,7 @@ function deserialize(source, data) {
 
 export const QueryRequestProcessors = {
   records(source, request) {
-    const { type, filter, sort } = request;
+    const { type, filter, sort, page } = request;
     const settings = {};
     const params = {};
 
@@ -32,6 +32,10 @@ export const QueryRequestProcessors = {
 
     if (sort) {
       params.sort = sort;
+    }
+
+    if (page) {
+      params.page = page;
     }
 
     if (Object.keys(params).length > 0) {
@@ -111,6 +115,13 @@ const ExpressionToRequestMap = {
   sort(expression, request) {
     const [select, sortExpressions] = expression.args;
     request.sort = buildSort(sortExpressions);
+
+    buildQueryRequest(select, request);
+  },
+
+  page(expression, request) {
+    const [select, page] = expression.args;
+    request.page = page;
 
     buildQueryRequest(select, request);
   },
