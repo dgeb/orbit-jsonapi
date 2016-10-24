@@ -85,7 +85,7 @@ export default class JSONAPISource extends Source {
   /////////////////////////////////////////////////////////////////////////////
 
   _pull(query) {
-    const requests = getQueryRequests(query);
+    const requests = getQueryRequests(this, query);
 
     if (this.maxRequestsPerQuery && requests.length > this.maxRequestsPerQuery) {
       return Orbit.Promise.resolve()

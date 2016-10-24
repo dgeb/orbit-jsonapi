@@ -617,6 +617,40 @@ test('#pull - record', function(assert) {
     });
 });
 
+test('#pull - record with include', function(assert) {
+  assert.expect(2);
+
+  const data = {
+    type: 'planets',
+    id: '12345',
+    attributes: { name: 'Jupiter', classification: 'gas giant' } ,
+    relationships: { moons: { data: [] } }
+  };
+
+  const planet = source.serializer.deserializeRecord({
+    type: 'planet',
+    id: '12345'
+  });
+
+  const options = {
+    sources: {
+      jsonapi: {
+        include: ['moons']
+      }
+    }
+  };
+
+  fetchStub
+    .withArgs('/planets/12345?include=moons')
+    .returns(jsonapiResponse(200, { data }));
+
+  return source.pull(Query.from(qb.record({ type: 'planet', id: planet.id }), options))
+    .then(() => {
+      assert.equal(fetchStub.callCount, 1, 'fetch called once');
+      assert.equal(fetchStub.getCall(0).args[1].method, undefined, 'fetch called with no method (equivalent to GET)');
+    });
+});
+
 test('#pull - records', function(assert) {
   assert.expect(5);
 
@@ -761,6 +795,50 @@ test('#pull - records with pagination', function(assert) {
     });
 });
 
+test('#pull - records with include', function(assert) {
+  assert.expect(2);
+
+  const options = {
+    sources: {
+      jsonapi: {
+        include: ['moons']
+      }
+    }
+  };
+
+  fetchStub
+    .withArgs('/planets?include=moons')
+    .returns(jsonapiResponse(200, { data: [] }));
+
+  return source.pull(Query.from(qb.records('planet'), options))
+    .then(() => {
+      assert.equal(fetchStub.callCount, 1, 'fetch called once');
+      assert.equal(fetchStub.getCall(0).args[1].method, undefined, 'fetch called with no method (equivalent to GET)');
+    });
+});
+
+test('#pull - records with include many relationships', function(assert) {
+  assert.expect(2);
+
+  const options = {
+    sources: {
+      jsonapi: {
+        include: ['moons', 'solar-systems']
+      }
+    }
+  };
+
+  fetchStub
+    .withArgs(`/planets?include=${encodeURIComponent('moons,solar-systems')}`)
+    .returns(jsonapiResponse(200, { data: [] }));
+
+  return source.pull(Query.from(qb.records('planet'), options))
+    .then(() => {
+      assert.equal(fetchStub.callCount, 1, 'fetch called once');
+      assert.equal(fetchStub.getCall(0).args[1].method, undefined, 'fetch called with no method (equivalent to GET)');
+    });
+});
+
 test('#pull - relatedRecords', function(assert) {
   assert.expect(5);
 
@@ -791,6 +869,35 @@ test('#pull - relatedRecords', function(assert) {
 
     assert.equal(fetchStub.callCount, 1, 'fetch called once');
     assert.equal(fetchStub.getCall(0).args[1].method, undefined, 'fetch called with no method (equivalent to GET)');
+  });
+
+  test('#pull - relatedRecords with include', function(assert) {
+    assert.expect(2);
+
+    const planetRecord = source.serializer.deserialize({
+      data: {
+        type: 'planets',
+        id: 'jupiter'
+      }
+    }).primary;
+
+    const options = {
+      sources: {
+        jsonapi: {
+          include: ['planet']
+        }
+      }
+    };
+
+    fetchStub
+      .withArgs('/planets/jupiter/moons?include=planet')
+      .returns(jsonapiResponse(200, { data: [] }));
+
+    return source.pull(Query.from(qb.relatedRecords(planetRecord, 'moons'), options))
+      .then(() => {
+        assert.equal(fetchStub.callCount, 1, 'fetch called once');
+        assert.equal(fetchStub.getCall(0).args[1].method, undefined, 'fetch called with no method (equivalent to GET)');
+      });
   });
 });
 
