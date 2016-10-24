@@ -22,25 +22,8 @@ function deserialize(source, data) {
 
 export const QueryRequestProcessors = {
   records(source, request) {
-    const { type, filter, sort, page } = request;
-    const settings = {};
-    const params = {};
-
-    if (filter) {
-      params.filter = filter;
-    }
-
-    if (sort) {
-      params.sort = sort;
-    }
-
-    if (page) {
-      params.page = page;
-    }
-
-    if (Object.keys(params).length > 0) {
-      settings.params = params;
-    }
+    const { type } = request;
+    const settings = buildRequestSettings(request);
 
     return source.fetch(source.resourceURL(type), settings)
       .then(data => deserialize(source, data));
@@ -70,6 +53,23 @@ export const QueryRequestProcessors = {
       .then(data => deserialize(source, data));
   }
 };
+
+function buildRequestSettings(request) {
+  const settings = {};
+  const params = {};
+
+  for (const param of ['filter', 'page', 'sort']) {
+    if (request[param]) {
+      params[param] = request[param];
+    }
+  }
+
+  if (Object.keys(params).length > 0) {
+    settings.params = params;
+  }
+
+  return settings;
+}
 
 export function getQueryRequests(query) {
   // For now, assume a 1:1 mapping between queries and requests
