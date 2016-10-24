@@ -45,7 +45,8 @@ module('JSONAPISource - with a secondary key', {
             classification: { type: 'string' }
           },
           relationships: {
-            moons: { type: 'hasMany', model: 'moon', inverse: 'planet' }
+            moons: { type: 'hasMany', model: 'moon', inverse: 'planet' },
+            solarSystem: { type: 'hasOne', model: 'solarSystem', inverse: 'planets' }
           }
         },
         moon: {
@@ -54,6 +55,14 @@ module('JSONAPISource - with a secondary key', {
           },
           relationships: {
             planet: { type: 'hasOne', model: 'planet', inverse: 'moons' }
+          }
+        },
+        solarSystem: {
+          attributes: {
+            name: { type: 'string' }
+          },
+          relationships: {
+            planets: { type: 'hasMany', model: 'planet', inverse: 'solarSystem' }
           }
         }
       }
@@ -165,6 +174,9 @@ test('#push - can add records', function(assert) {
       relationships: {
         moons: {
           data: {}
+        },
+        solarSystem: {
+          data: null
         }
       }
     }
@@ -220,6 +232,9 @@ test('#push - can add records', function(assert) {
             relationships: {
               moons: {
                 data: []
+              },
+              'solar-system': {
+                data: null
               }
             }
           }
@@ -259,6 +274,9 @@ test('#push - can transform records', function(assert) {
       relationships: {
         moons: {
           data: {}
+        },
+        solarSystem: {
+          data: null
         }
       }
     }
@@ -304,6 +322,9 @@ test('#push - can transform records', function(assert) {
             relationships: {
               moons: {
                 data: []
+              },
+              'solar-system': {
+                data: null
               }
             }
           }
