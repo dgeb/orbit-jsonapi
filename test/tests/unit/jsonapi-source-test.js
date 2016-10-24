@@ -3,6 +3,7 @@ import Source from 'orbit/source';
 import { uuid } from 'orbit/lib/uuid';
 import Schema from 'orbit/schema';
 import KeyMap from 'orbit/key-map';
+import Query from 'orbit/query';
 import Transform from 'orbit/transform';
 import qb from 'orbit/query/builder';
 import { TransformNotAllowed } from 'orbit/lib/exceptions';
@@ -584,7 +585,7 @@ test('#pull - record', function(assert) {
     .withArgs('/planets/12345')
     .returns(jsonapiResponse(200, { data }));
 
-  return source.pull(qb.record({ type: 'planet', id: planet.id }))
+  return source.pull(Query.from(qb.record({ type: 'planet', id: planet.id })))
     .then(transforms => {
       assert.equal(transforms.length, 1, 'one transform returned');
       assert.deepEqual(transforms[0].operations.map(o => o.op), ['replaceRecord']);
@@ -608,7 +609,7 @@ test('#pull - records', function(assert) {
     .withArgs('/planets')
     .returns(jsonapiResponse(200, { data }));
 
-  return source.pull(qb.records('planet'))
+  return source.pull(Query.from(qb.records('planet')))
     .then(transforms => {
       assert.equal(transforms.length, 1, 'one transform returned');
       assert.deepEqual(transforms[0].operations.map(o => o.op), ['replaceRecord', 'replaceRecord', 'replaceRecord']);
@@ -630,8 +631,8 @@ test('#pull - records with filter', function(assert) {
     .withArgs(`/planets?${encodeURIComponent('filter[name]')}=Jupiter`)
     .returns(jsonapiResponse(200, { data }));
 
-  return source.pull(qb.records('planet')
-                        .filterAttributes({ name: 'Jupiter' }))
+  return source.pull(Query.from(qb.records('planet')
+                                  .filterAttributes({ name: 'Jupiter' })))
     .then(transforms => {
       assert.equal(transforms.length, 1, 'one transform returned');
       assert.deepEqual(transforms[0].operations.map(o => o.op), ['replaceRecord']);
@@ -655,7 +656,7 @@ test('#pull - records with sort by an attribute in ascending order', function(as
     .withArgs('/planets?sort=name')
     .returns(jsonapiResponse(200, { data }));
 
-  return source.pull(qb.records('planet').sort('name'))
+  return source.pull(Query.from(qb.records('planet').sort('name')))
     .then(transforms => {
       assert.equal(transforms.length, 1, 'one transform returned');
       assert.deepEqual(transforms[0].operations.map(o => o.op), ['replaceRecord', 'replaceRecord', 'replaceRecord']);
@@ -679,7 +680,7 @@ test('#pull - records with sort by an attribute in descending order', function(a
     .withArgs('/planets?sort=-name')
     .returns(jsonapiResponse(200, { data }));
 
-  return source.pull(qb.records('planet').sort('-name'))
+  return source.pull(Query.from(qb.records('planet').sort('-name')))
     .then(transforms => {
       assert.equal(transforms.length, 1, 'one transform returned');
       assert.deepEqual(transforms[0].operations.map(o => o.op), ['replaceRecord', 'replaceRecord', 'replaceRecord']);
@@ -703,7 +704,7 @@ test('#pull - records with sort by multiple fields', function(assert) {
     .withArgs(`/planets?sort=${encodeURIComponent('classification,name')}`)
     .returns(jsonapiResponse(200, { data }));
 
-  return source.pull(qb.records('planet').sort('classification', 'name'))
+  return source.pull(Query.from(qb.records('planet').sort('classification', 'name')))
     .then(transforms => {
       assert.equal(transforms.length, 1, 'one transform returned');
       assert.deepEqual(transforms[0].operations.map(o => o.op), ['replaceRecord', 'replaceRecord', 'replaceRecord']);
@@ -727,8 +728,8 @@ test('#pull - records with pagination', function(assert) {
     .withArgs(`/planets?${encodeURIComponent('page[offset]')}=1&${encodeURIComponent('page[limit]')}=10`)
     .returns(jsonapiResponse(200, { data }));
 
-  return source.pull(qb.records('planet')
-                       .page({ offset: 1, limit: 10 }))
+  return source.pull(Query.from(qb.records('planet')
+                                  .page({ offset: 1, limit: 10 })))
     .then(transforms => {
       assert.equal(transforms.length, 1, 'one transform returned');
       assert.deepEqual(transforms[0].operations.map(o => o.op), ['replaceRecord', 'replaceRecord', 'replaceRecord']);
@@ -761,7 +762,7 @@ test('#pull - relatedRecords', function(assert) {
     .withArgs('/planets/jupiter/moons')
     .returns(jsonapiResponse(200, { data }));
 
-  let query = qb.relatedRecords(planetRecord, 'moons');
+  let query = Query.from(qb.relatedRecords(planetRecord, 'moons'));
   return source.pull(query).then((transforms) => {
     assert.equal(transforms.length, 1, 'one transform returned');
     assert.deepEqual(transforms[0].operations.map(o => o.op), ['replaceRecord']);
